@@ -50,13 +50,11 @@ app.post("/register", async (request, response) => {
     );`;
     if (password.length < 5) {
       //Password length
-      const dbResponse = await db.run(createUser);
-      const newUser = dbResponse.lastId;
       response.status(400);
       response.send(`Password is too short`);
     } else {
       const dbResponse = await db.run(createUser);
-      const newUser = dbResponse.lastId;
+      //const newUserId = dbResponse.lastId;
       response.status(400);
       response.send(`User created successfully`);
     }
@@ -79,7 +77,7 @@ app.post("/login", async (request, response) => {
     response.send("Invalid user");
   } else {
     const passwordIsValid = await bcrypt.compare(password, dbUser.password);
-    if (password === true) {
+    if (passwordIsValid === true) {
       response.status(400);
       response.send("Login success!");
     } else {
@@ -94,7 +92,7 @@ app.post("/login", async (request, response) => {
 app.put("/change-password", async (request, response) => {
   const { username, oldPassword, newPassword } = request.body;
 
-  const selectUser = `SELECT * FROM user WHERE username = '${username};`;
+  const selectUser = `SELECT * FROM user WHERE username = '${username}';`;
   const dbUser = await db.get(selectUser);
 
   if (dbUser === undefined) {
@@ -109,7 +107,7 @@ app.put("/change-password", async (request, response) => {
         response.send("Password is too short");
       } else {
         const encryptPassword = await bcrypt.hash(newPassword, 10);
-        const updatePassword = `UPDATE user SET password = '${encryptPassword} WHERE username = '${username};`;
+        const updatePassword = `UPDATE user SET password = '${encryptPassword}' WHERE username = '${username}';`;
         await db.run(updatePassword);
         response.status(400);
         response.send("password updated");
